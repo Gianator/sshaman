@@ -1,0 +1,241 @@
+#!/usr/bin/env python3
+import os
+import configparser
+import sys
+
+config_file = os.path.dirname(os.path.realpath(__file__)) + "/sshaman.conf"
+
+command_list = {
+        "connect": ["connect", "con"],
+        "add": ["add"],
+        "remove": ["remove", "rm"],
+        "env": ["env"],
+        "list": ["list", "ls"],
+        "help": ["help"],
+        "copy": ["copy", "cp", "scp"]
+}
+
+
+"""
+Connect
+    command
+        $ sshaman connect <alias>
+        $ sshaman con <alias>
+        $ sshaman <alias>
+
+    variables
+        alias - params[0]
+"""
+def sshaman_connect(params):
+    config = read_config()
+    if alias_exists(config, params[0]):
+        passwd = os.popen('pass sshaman/' + params[0]).read().strip()
+        if env_exists(config, params[0]):
+            os.system(config[params[0]]["env"] + ' sshpass -p ' + passwd + ' ssh ' + config[params[0]]["user"] + "@" + config[params[0]]["host"])
+        else:
+            os.system('sshpass -p ' + passwd + ' ssh ' + config[params[0]]["user"] + "@" + config[params[0]]["host"])
+    else:
+        print("sshaman connection not found")
+
+"""
+Add
+    command
+        $ sshaman add <alias> <host> <user>
+
+        variables
+            alias - params[0]
+            host  - params[1]
+            user  - params[2]
+"""
+def sshaman_add(params):
+    config = read_config()
+    if len(params) != 3:
+        sshaman_helper(key="connect")
+    elif alias_exists(config, params[0]):
+        # alias exists
+        print("sshaman connecection already exists with that alias")
+    else:
+        # alias doesn't exist, so we can create it
+        config.add_section(params[0])
+        config.set(params[0], "host", params[1])
+        config.set(params[0], "user", params[2])
+        write_config(config)
+        os.system("pass insert sshaman/" + params[0])
+
+"""
+Environment Vars
+    command
+        $ sshaman env <alias> "<env variables>"
+    variables
+        alias - params[0]
+        env   - params[1]
+"""
+def sshaman_add_env(params):
+    config = read_config()
+    if alias_exists(config, params[0]):
+        config.set(params[0], "env", params[1])
+        write_config(config)
+    else:
+        print("sshaman connection not found")
+
+"""
+Delete
+    command
+        $ sshaman remove <alias>
+        $ sshaman rm <alias>
+
+    variables
+        alias - params[0]
+"""
+def sshaman_remove(params):
+    config = read_config()
+    if alias_exists(config, params[0]):
+        config.remove_section(params[0])
+        os.system("pass rm sshaman/" + params[0] + " -f")
+    else:
+        print("sshaman connection not found")
+
+"""
+List
+    command
+        $ sshaman list
+        $ sshaman ls
+        $ sshaman list <alias>
+        $ sshaman ls <alias>
+"""
+def sshaman_list(params=None):
+    config = read_config()
+    if len(config.sections()) is 0:
+        print("no sshaman connections found")
+    else:
+        if len(params) != 0 and alias_exists(config, params[0]):
+            print_connection(config, params[0])
+        else:
+            for section in config.sections():
+                print_connection(config, section)
+
+def print_connection(config, alias):
+    print(alias + ":")
+    print("  " + config[alias]["user"] + "@" + config[alias]["host"])
+    if env_exists(config, alias):
+        print("  " + config[alias]["env"])
+"""
+Copy
+    command
+        $ sshaman copy <alias> <local-file> <remote-dest>
+
+    variables
+        alias  = params[0]
+        local  = params[1]
+        remote = params[2]
+"""
+def sshaman_copy(params):
+    config = read_config();
+    if alias_exists(config, params[0]):
+        passwd = os.popen('pass sshaman/' + params[0]).read().strip()
+        os.system('sshpass -p ' + passwd + ' scp ' + params[1] + " " + config[params[0]]["user"] + "@" + config[params[0]]["host"] + ":" + params[2])
+    else:
+        print('sshaman connection not found')
+
+
+def sshaman_help(params=None):
+    config = read_config()
+    if params is not None and len(params) >= 1:
+        sshaman_helper(params[0])
+    else:
+        sshaman_helper(listAll=True)
+
+def sshaman_helper(key=None, listAll=False):
+    print("sshaman  -  the ssh conection manager")
+    if key in command_list['connect'] or listAll:
+        print()
+        print("connect  -  sshaman connect <alias>")
+        print("         -  sshaman con <alias>")
+        print("         -  sshaman <alias>")
+    if key in command_list["add"] or listAll:
+        print()
+        print("add      -  sshaman add <alias> <host> <user>")
+    if key in command_list["remove"] or listAll:
+        print()
+        print("remove   -  sshaman remove <alias>")
+        print("         -  sshaman rm <alias>")
+    if key in command_list["env"] or listAll:
+        print()
+        print("env      -  sshaman env <alias> \"your env vars\"")
+    if key in command_list["list"] or listAll:
+        print()
+        print("list     -  sshaman list")
+        print("         -  sshaman ls")
+        print("         -  sshaman list <alias>")
+        print("         -  sshaman ls <alias>")
+    if key in command_list["help"] or listAll:
+        print()
+        print("help     -  sshaman help")
+        print("         -  sshaman help <command>")
+    if key in command_list["copy"] or listAll:
+        print()
+        print("WARNING: EXPERIMENTAL")
+        print()
+        print("copy     -  sshaman copy <alias> <local-file> <remote-location>")
+        print("         -  sshaman cp <alias> <local-file> <remote-location>")
+        print("         -  sshaman scp <alias> <local-file> <remote-location>")
+
+
+
+def alias_exists(config, alias):
+    if alias in config.sections():
+        return True
+    return False
+
+def env_exists(config, alias):
+    if "env" in config[alias]:
+        return True
+    return False
+
+def read_config():
+    if not os.path.isfile(config_file):
+        file = open(config_file, "w")
+        file.write("")
+        file.close()
+
+    config = configparser.ConfigParser()
+    config.read(config_file)
+    return config
+
+def write_config(config):
+    with open(config_file, "w") as output:
+        config.write(output)
+
+
+if __name__ == '__main__':
+    if len(sys.argv) == 1:
+        sshaman_list(sys.argv[2:])
+        print("type \"sshaman help\" for more info")
+    else:
+        if sys.argv[1] in command_list['connect']:
+            sshaman_connect(sys.argv[2:])
+
+        elif sys.argv[1] in command_list['add']:
+            sshaman_add(sys.argv[2:])
+
+        elif sys.argv[1] in command_list['remove']:
+            sshaman_remove(sys.argv[2:])
+
+        elif sys.argv[1] in command_list['env']:
+            sshaman_add_env(sys.argv[2:])
+
+        elif sys.argv[1] in command_list['list']:
+            sshaman_list(sys.argv[2:])
+
+        elif sys.argv[1] in command_list['help']:
+            sshaman_help(sys.argv[2:])
+
+        elif sys.argv[1] in command_list['copy']:
+            sshaman_copy(sys.argv[2:])
+
+        elif alias_exists(read_config(), sys.argv[1]):
+            sshaman_connect(sys.argv[1:])
+
+        else:
+            sshaman_help()
+
