@@ -91,6 +91,7 @@ def sshaman_remove(params):
     config = read_config()
     if alias_exists(config, params[0]):
         config.remove_section(params[0])
+        write_config(config)
         os.system("pass rm sshaman/" + params[0] + " -f")
     else:
         print("sshaman connection not found")
