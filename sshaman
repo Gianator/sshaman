@@ -7,7 +7,7 @@ config_file = os.path.dirname(os.path.realpath(__file__)) + "/sshaman.conf"
 
 command_list = {
         "connect": ["connect", "con"],
-        "add": ["add"],
+        "add": ["add", "new"],
         "remove": ["remove", "rm"],
         "env": ["env"],
         "list": ["list", "ls"],
@@ -50,10 +50,10 @@ Add
 def sshaman_add(params):
     config = read_config()
     if len(params) != 3:
-        sshaman_helper(key="connect")
-    elif alias_exists(config, params[0]):
+        sshaman_helper(key="add")
+    elif alias_exists(config, params[0]):# or alias_unavailable(params[0]):
         # alias exists
-        print("sshaman connecection already exists with that alias")
+        print("sshaman connection creation failed: check if you already have a connection with that alias or if it is a special word")
     else:
         # alias doesn't exist, so we can create it
         config.add_section(params[0])
@@ -187,6 +187,13 @@ def alias_exists(config, alias):
     if alias in config.sections():
         return True
     return False
+
+#def alias_unavailable(alias):
+#    for cmd in command_list:
+#        print(cmd)
+#        if alias in cmd:
+#            return True
+#    return False
 
 def env_exists(config, alias):
     if "env" in config[alias]:
