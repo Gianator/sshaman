@@ -12,7 +12,9 @@ command_list = {
         "env": ["env"],
         "list": ["list", "ls"],
         "help": ["help"],
-        "copy": ["copy", "cp", "scp"]
+        "copy": ["copy", "cp", "scp"],
+        "push": ["push", "put"],
+        "pull": ["pull", "get"]
 }
 
 
@@ -131,23 +133,28 @@ Copy
         remote = params[2]
 """
 def sshaman_copy(params):
-    print("this feature is not yet implemented")
+    print('this feature is not yet implemented')
+    print('please use \'sshaman push\' or \'sshaman pull\' instead')
 
-def sshaman_copy_testing(params):
-    config = read_config();
+def sshaman_push(params):
+    config = read_config()
 
-    if alias_exists(config, params[0]): # first argument is the sshaman connection
+    if alias_exists(config, params[0]):
         passwd = os.popen('pass sshaman/' + params[0]).read().strip()
-
-        os.system('sshpass -p ' + passwd + ' scp ' + params[1] + " " + config[params[0]]["user"] + "@" + config[params[0]]["host"] + ":" + params[2])
-    elif alias_exists(config, params[1]): # second argument is the sshaman connection
-        passwd = os.popen('pass sshaman/' + params[1]).read().strip()
-
-        os.system('sshpass -p ' + passwd + ' scp ' + params[])
+        if not params[2]:
+            params[2] = "~/"
+        os.system('sshpass -p ' + passwd + ' scp ' + params[1] + ' ' + config[params[0]]["user"] + '@' + config[params[0]]["host"] + ':' + params[2])
     else:
         print('sshaman connection not found')
 
+def sshaman_pull(params):
+    config = read_config()
 
+    if alias_exists(config, params[0]):
+        passwd = os.popen('pass sshaman/' + params[0]).read().strip()
+        os.system('sshaman -p ' + passwd + ' scp ' + config[params[0]]['user'] + '@' + config[params[0]]['host'] + ' ' + params[1] + ':' + params[2])
+    else:
+        print('sshaman connection not found')
 
 def sshaman_help(params=None):
     config = read_config()
@@ -250,6 +257,9 @@ if __name__ == '__main__':
 
         elif sys.argv[1] in command_list['copy']:
             sshaman_copy(sys.argv[2:])
+
+        elif sys.argv[1] in command_list['push']:
+            sshaman_push(sys.argv[2:])
 
         elif alias_exists(read_config(), sys.argv[1]):
             sshaman_connect(sys.argv[1:])
