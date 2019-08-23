@@ -131,12 +131,22 @@ Copy
         remote = params[2]
 """
 def sshaman_copy(params):
+    print("this feature is not yet implemented")
+
+def sshaman_copy_testing(params):
     config = read_config();
-    if alias_exists(config, params[0]):
+
+    if alias_exists(config, params[0]): # first argument is the sshaman connection
         passwd = os.popen('pass sshaman/' + params[0]).read().strip()
+
         os.system('sshpass -p ' + passwd + ' scp ' + params[1] + " " + config[params[0]]["user"] + "@" + config[params[0]]["host"] + ":" + params[2])
+    elif alias_exists(config, params[1]): # second argument is the sshaman connection
+        passwd = os.popen('pass sshaman/' + params[1]).read().strip()
+
+        os.system('sshpass -p ' + passwd + ' scp ' + params[])
     else:
         print('sshaman connection not found')
+
 
 
 def sshaman_help(params=None):
