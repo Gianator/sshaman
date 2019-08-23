@@ -136,23 +136,49 @@ def sshaman_copy(params):
     print('this feature is not yet implemented')
     print('please use \'sshaman push\' or \'sshaman pull\' instead')
 
+"""
+Push
+    command
+        $ sshaman push <alias> <local-file> <remote-dest>
+        $ sshaman put <alias> <local-file> <remote-dest>
+
+    variables
+        alias   = params[0]
+        local   = params[1]
+        remote  = params[2] (optional, assumes home directory)
+"""
 def sshaman_push(params):
     config = read_config()
 
     if alias_exists(config, params[0]):
         passwd = os.popen('pass sshaman/' + params[0]).read().strip()
-        if not params[2]:
-            params[2] = "~/"
-        os.system('sshpass -p ' + passwd + ' scp ' + params[1] + ' ' + config[params[0]]["user"] + '@' + config[params[0]]["host"] + ':' + params[2])
+
+        remdir = params[2]
+        if not remdir:
+            remdir = "~/"
+        os.system('sshpass -p ' + passwd + ' scp ' + params[1] + ' ' + config[params[0]]["user"] + '@' + config[params[0]]["host"] + ':' + remdir)
     else:
         print('sshaman connection not found')
 
+
+"""
+Pull
+    command
+        $ sshaman push <alias> <remote-file> <local-dest>
+        $ sshaman get <alias> <remote-file> <local-dest>
+
+    variable
+        alias   = params[0]
+        remote  = params[1]
+        local   = params[2] (optional, assumes current directory)
+
+"""
 def sshaman_pull(params):
     config = read_config()
 
     if alias_exists(config, params[0]):
         passwd = os.popen('pass sshaman/' + params[0]).read().strip()
-        os.system('sshaman -p ' + passwd + ' scp ' + config[params[0]]['user'] + '@' + config[params[0]]['host'] + ' ' + params[1] + ':' + params[2])
+        os.system('sshaman -p ' + passwd + ' scp ' + config[params[0]]['user'] + '@' + config[params[0]]['host'] + ':~/' + params[1] + "./")
     else:
         print('sshaman connection not found')
 
@@ -194,9 +220,15 @@ def sshaman_helper(key=None, listAll=False):
         print()
         print("WARNING: EXPERIMENTAL")
         print()
-        print("copy     -  sshaman copy <alias> <local-file> <remote-location>")
-        print("         -  sshaman cp <alias> <local-file> <remote-location>")
-        print("         -  sshaman scp <alias> <local-file> <remote-location>")
+        print("push     -  sshaman push <alias> <local-file> <remote-destination>")
+        print("         -  sshaman push <alias> <local-file>")
+        print("         -  sshaman put <alias> <local-file> <remote-destination>")
+        print("         -  sshaman put <alias> <local-file>")
+        print()
+        print("pull     -  sshaman pull <alias> <remote-file> <local-destination>")
+        print("         -  sshaman pull <alias> <remote-file>")
+        print("         -  sshaman get <alias> <remote-file> <local-destination>")
+        print("         -  sshaman get <alias> <remote-file>")
 
 
 
