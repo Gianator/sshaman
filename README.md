@@ -38,10 +38,26 @@ adds environment variables to a connection
 ```{r,engine='sh'}
 sshaman env <alias> "your env vars"
 ```
-### copy - THIS FEATURE IS EXPERIMENTAL
-copies one file or directory to a sshamanaged remote location
+## EXPERIMENTAL FEATURES
+### push
+pushes a file to remote server
 ```{r,engine='sh'}
-sshaman copy <alias> <local-file> <remote-location>
-sshaman cp <alias> <local-file> <remote-location>
-sshaman scp <alias> <local-file> <remote-location>
+sshaman push <alias> <local-file> <remote-destination>
+sshaman put <alias> <local-file> <remote-destination>
+```
+if the remote-destination argument is left blank sshaman assumes the home directory of the remote server
+```{r,engine='sh'}
+sshaman push <alias> <local-file>
+sshaman put <alias> <local-file>
+```
+### pull
+pulls a file from the remote server
+```{r,engine='sh'}
+sshaman pull <alias> <remote-file> <local-destination>
+sshaman get <alias> <remote-file> <local-destination>
+```
+if the local-destination argument is left blank sshaman assumes the current directory
+```{r,engine='sh'}
+sshaman pull <alias> <remote-file>
+sshaman get <alias> <remote-file>
 ```
