@@ -182,6 +182,14 @@ def sshaman_pull(params):
     else:
         print('sshaman connection not found')
 
+"""
+Help
+    command
+        $ sshaman help
+        $ sshaman help <command>
+    variable
+        command = params[0]
+"""
 def sshaman_help(params=None):
     config = read_config()
     if params is not None and len(params) >= 1:
