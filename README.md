@@ -1,9 +1,9 @@
 # sshaman
-### a simple ssh manager
+## a simple ssh manager
 
 ## requirements
-* pass (this is used to store your passwords securely)
-* sshpass (this is used to auto inject your ssh passwords)
+* pass (Used to store your passwords securely)
+* sshpass (Used to inject your ssh passwords)
 
 ## commands
 ### connect
