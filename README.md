@@ -2,8 +2,8 @@
 a simple ssh manager
 
 ## requirements
-* pass (Used to store your passwords securely)
-* sshpass (Used to inject your ssh passwords)
+*  pass (Used to store your passwords securely)
+*  sshpass (Used to inject your ssh passwords)
 
 ## commands
 ### connect
