@@ -1,5 +1,5 @@
 # sshaman
-## a simple ssh manager
+a simple ssh manager
 
 ## requirements
 * pass (Used to store your passwords securely)
