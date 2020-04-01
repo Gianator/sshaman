@@ -1,4 +1,4 @@
 # sshaman
 a simple ssh manager
 
-### currently unsafe
+### currently unsafe stores passwords in plain text
