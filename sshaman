@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import click
-from click_alias import ClickAliasedGroup
+from click_aliases import ClickAliasedGroup
 import os
 import sys
 import configparser
