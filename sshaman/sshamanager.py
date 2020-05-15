@@ -4,7 +4,8 @@ import configparser
 from getpass import getpass
 import readline
 
-config_file = os.path.dirname(os.path.realpath(__file__)) + '/sshaman.conf'
+#config_file = os.path.dirname(os.path.realpath(__file__)) + '/sshaman.conf'
+config_file = os.path.expanduser('~/.config/sshaman/sshaman.conf')
 
 
 # Attempt to connect to an sshaman connection
@@ -129,9 +130,7 @@ def print_connection(config, alias):
 def read_config():
     if not os.path.isfile(config_file):
         # config file doesnt exist, so create it
-        file = open(config_file, "w")
-        file.write("")
-        file.close()
+        create_config()
 
     config = configparser.ConfigParser()
     config.read(config_file)
@@ -139,14 +138,25 @@ def read_config():
 
 # Save the supplied config reference to the config file
 def write_config(config):
+    if not os.path.isfile(config_file):
+        create_config()
+
     with open(config_file, "w") as output:
         config.write(output)
+
+# Create an empty config file
+def create_config():
+    os.makedirs(os.path.dirname(config_file), exist_ok=True)
 
 # Check if there is a connection with the supplied alias
 def alias_exists(config, alias):
     if alias in config.sections():
         return True
     return False
+
+# Check whether alias is usable
+def alias_available(config, alias):
+    pass
 
 # Checks if there are any ENV variables for the connection
 def env_exists(config, alias):
