@@ -1,30 +1,33 @@
-import os
-import sys
+from os import path, system, popen, makedirs
 import configparser
 from getpass import getpass
 import readline
 
-#config_file = os.path.dirname(os.path.realpath(__file__)) + '/sshaman.conf'
-config_file = os.path.expanduser('~/.config/sshaman/sshaman.conf')
+#config_file = path.dirname(path.realpath(__file__)) + '/sshaman.conf'
+config_file = path.expanduser('~/.config/sshaman/sshaman.conf')
 
 
 # Attempt to connect to an sshaman connection
-def connect(alias):
+def sshaman_connect(alias):
     config = read_config()
     if alias_exists(config, alias):
         # fetch the password
-        passwd = os.popen('pass sshaman/' + alias).read().strip()
+        passwd = popen('pass sshaman/' + alias).read().strip()
         if env_exists(config, alias):
             # This connection has env varibles associated with it so connect with them injected
-            os.system(config[alias]["env"] + ' sshpass -p ' + passwd + ' ssh ' + config[alias]["connection"])
+            system(config[alias]["env"] + ' sshpass -p ' +
+                   passwd + ' ssh ' + config[alias]["connection"])
         else:
             # This connection has no env variables, connect normally
-            os.system('sshpass -p ' + passwd + ' ssh ' + config[alias]["connection"])
+            system('sshpass -p ' + passwd + ' ssh ' +
+                   config[alias]["connection"])
     else:
         print('sshaman connection \'' + alias + '\' was not found')
 
 # Adds a new connection to sshaman
-def add(alias, connection, env=None, password=None):
+
+
+def sshaman_add(alias, connection, env=None, password=None):
     config = read_config()
     if alias_exists(config, alias):
         print("sshaman creation failed: you already have a connection with that alias")
@@ -42,7 +45,9 @@ def add(alias, connection, env=None, password=None):
         print("sshaman connection added")
 
 # Remove a connection from sshaman
-def remove(alias):
+
+
+def sshaman_remove(alias):
     config = read_config()
     if alias_exists(config, alias):
         config.remove_section(alias)
@@ -52,7 +57,9 @@ def remove(alias):
         print("sshaman connection not found")
 
 # Edit an sshaman connection (interactive)
-def edit(alias):
+
+
+def sshaman_edit(alias):
     config = read_config()
     if alias_exists(config, alias):
         con = editable_input("Connection: ", config[alias]["connection"])
@@ -81,6 +88,8 @@ def edit(alias):
         print("sshaman connection not found")
 
 # Edit single sshaman connection field
+
+
 def edit_one(alias, field, data):
     config = read_config()
     if alias_exists(config, alias):
@@ -101,13 +110,13 @@ def editable_input(prompt, prefill=''):
 
 
 # List of sshaman connections
-def list(query):
+def sshaman_list(query):
     config = read_config()
     if len(config.sections()) == 0:
         print("no sshaman connections found")
     else:
         if query:
-            print("Query: "  + query)
+            print("Query: " + query)
             i = 0
             for section in config.sections():
                 if query in config[section]["connection"]:
@@ -119,6 +128,7 @@ def list(query):
             for section in config.sections():
                 print_connection(config, section)
 
+
 def print_connection(config, alias):
     print(alias + ":")
     print("  " + config[alias]["connection"])
@@ -128,7 +138,7 @@ def print_connection(config, alias):
 
 # Read the config into memory
 def read_config():
-    if not os.path.isfile(config_file):
+    if not path.isfile(config_file):
         # config file doesnt exist, so create it
         create_config()
 
@@ -137,28 +147,38 @@ def read_config():
     return config
 
 # Save the supplied config reference to the config file
+
+
 def write_config(config):
-    if not os.path.isfile(config_file):
+    if not path.isfile(config_file):
         create_config()
 
     with open(config_file, "w") as output:
         config.write(output)
 
 # Create an empty config file
+
+
 def create_config():
-    os.makedirs(os.path.dirname(config_file), exist_ok=True)
+    makedirs(path.dirname(config_file), exist_ok=True)
 
 # Check if there is a connection with the supplied alias
+
+
 def alias_exists(config, alias):
     if alias in config.sections():
         return True
     return False
 
 # Check whether alias is usable
+
+
 def alias_available(config, alias):
     pass
 
 # Checks if there are any ENV variables for the connection
+
+
 def env_exists(config, alias):
     if "env" in config[alias]:
         return True
