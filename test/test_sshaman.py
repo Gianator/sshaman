@@ -1,2 +1,2 @@
-def nothing():
+def test_nothing():
     pass
