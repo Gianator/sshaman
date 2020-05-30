@@ -1,0 +1,18 @@
+pkgbase = sshaman-git
+	pkgdesc = A simple ssh manager
+	pkgver = 0.r38.cfb8bb4
+	pkgrel = 1
+	url = https://github.com/gianator/sshaman.git
+	arch = any
+	license = GPL3
+	makedepends = git
+	makedepends = make
+	makedepends = python-setuptools
+	depends = python
+	provides = sshaman
+	conflicts = sshaman
+	source = git+https://github.com/gianator/sshaman.git
+	md5sums = SKIP
+
+pkgname = sshaman-git
+
