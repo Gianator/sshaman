@@ -12,7 +12,8 @@ def sshaman_connect(alias):
     config = read_config()
     if alias_exists(config, alias):
         # fetch the password
-        passwd = popen('pass sshaman/' + alias).read().strip()
+        passwd = config[alias]["password"].strip() 
+        #passwd = popen('pass sshaman/' + alias).read().strip()
         if env_exists(config, alias):
             # This connection has env varibles associated with it so connect with them injected
             system(config[alias]["env"] + ' sshpass -p ' +
